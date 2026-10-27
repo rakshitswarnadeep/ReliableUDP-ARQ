@@ -1,5 +1,0 @@
-Protocol,Loss_Rate,Window_Size,File_Size_Bytes,Elapsed_Time_Seconds,Goodput_Bps,Retransmissions,Seed
-Selective Repeat,0.0,4,1048576,78.206,13407.87,verify from complete sender log,1
-Selective Repeat,0.1,4,1048576,,,,1
-Selective Repeat,0.2,4,1048576,,,,1
-Selective Repeat,0.3,4,1048576,,,,1
