@@ -1,3 +1,5 @@
+import argparse
+
 from channel_emulator import ChannelEmulator
 import socket
 from common import TYPE_DATA, TYPE_END, parse_packet, make_ack
@@ -34,15 +36,34 @@ class SelectiveRepeatReceiver:
             return None
 
 
+
 def main():
+    parser = argparse.ArgumentParser(
+        description="Selective Repeat UDP receiver"
+    )
+    parser.add_argument("--port", type=int, default=9010)
+    parser.add_argument(
+        "--loss",
+        type=float,
+        default=0.1,
+        help="ACK loss rate between 0.0 and 1.0"
+    )
+    args = parser.parse_args()
+
+    if not 0.0 <= args.loss <= 1.0:
+        parser.error("--loss must be between 0.0 and 1.0")
+
     host = "0.0.0.0"
-    port = 9010
     receiver = SelectiveRepeatReceiver(window_size=4)
+    emulator = ChannelEmulator(loss_rate=args.loss, seed=1)
 
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-        sock.bind((host, port))
-        print(f"Selective Repeat receiver listening on port {port}")
-        emulator = ChannelEmulator(loss_rate=0.1, seed=1)
+        sock.bind((host, args.port))
+        print(
+            f"Selective Repeat receiver listening on port {args.port}"
+        )
+        print(f"ACK loss rate: {args.loss:.0%}")
+
         while True:
             packet, address = sock.recvfrom(2048)
 
@@ -54,24 +75,24 @@ def main():
 
             if packet_type == TYPE_DATA:
                 ack = receiver.receive_packet(seq_num, payload)
+
                 if ack is not None:
-                  emulator.transmit(sock, ack, address)
-                print("ACK sent:", seq_num)
+                    emulator.transmit(sock, ack, address)
 
             elif packet_type == TYPE_END:
                 print("END packet received")
 
-                # END sequence number is the total number of DATA packets.
-                # Only finalize when every preceding DATA packet was delivered.
                 if seq_num != receiver.base:
                     print(
-                        f"END rejected: expected next sequence {receiver.base}, "
-                        f"received END sequence {seq_num}. Waiting for missing data."
+                        f"END rejected: expected next sequence "
+                        f"{receiver.base}, received END sequence "
+                        f"{seq_num}. Waiting for missing data."
                     )
                     continue
 
                 with open("received_test.txt", "wb") as output_file:
                     output_file.write(receiver.received_data)
+
                 print("File saved as received_test.txt")
                 sock.sendto(make_ack(seq_num), address)
                 break

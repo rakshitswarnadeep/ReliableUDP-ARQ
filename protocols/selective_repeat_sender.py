@@ -1,3 +1,5 @@
+from email import parser
+
 from channel_emulator import ChannelEmulator
 import argparse
 import socket
@@ -16,9 +18,9 @@ from common import (
 WINDOW_SIZE = 4
 TIMEOUT = 1.0
 MAX_RETRIES = 10
-def send_file(filename, receiver_ip, receiver_port):
+def send_file(filename, receiver_ip, receiver_port, loss_rate=0.1):
     receiver = (receiver_ip, receiver_port)
-    emulator = ChannelEmulator(loss_rate=0.1, seed=1)
+    emulator = ChannelEmulator(loss_rate= loss_rate, seed=1)
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.settimeout(0.1)
 
@@ -157,11 +159,12 @@ def main():
     parser.add_argument("receiver_ip")
     parser.add_argument("file")
     parser.add_argument("--port", type=int, default=9010)
+    parser.add_argument("--loss", type=float, default=0.1)
 
     args = parser.parse_args()
 
     start = time.perf_counter()
-    send_file(args.file, args.receiver_ip, args.port)
+    send_file(args.file, args.receiver_ip, args.port, args.loss)
     print(f"Elapsed time: {time.perf_counter() - start:.3f} seconds")
 
 
