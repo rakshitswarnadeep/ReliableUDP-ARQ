@@ -1,0 +1,5 @@
+Protocol,Loss_Rate,Window_Size,File_Size_Bytes,Elapsed_Time_Seconds,Goodput_Bps,Retransmissions,Seed,Status
+Selective Repeat,0.0,4,1048576,78.206,13407.87,,1,Previously reported measurement; verify against actual log
+Selective Repeat,0.1,4,1048576,118.179,8872.78,,1,Previously reported measurement; verify against actual log
+Selective Repeat,0.2,4,1048576,180.0,5825.42,,1,ESTIMATE ONLY — replace with measured result
+Selective Repeat,0.3,4,1048576,243.531,4305.72,,1,From provided screenshot; verify file hash and log
